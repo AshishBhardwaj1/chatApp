@@ -3,7 +3,7 @@ import authRoutes from "./routes/auth.route.js"
 // server.js
 import express from "express"
 const app = express();
-const PORT = 3000;
+const PORT = 8000;
 
 // Middleware
 app.use(express.json());
