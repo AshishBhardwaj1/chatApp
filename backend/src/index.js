@@ -1,45 +1,37 @@
-import authRoutes from "./routes/auth.route.js"
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+const cors = require("cors");
 
-// server.js
-import express from "express"
-const app = express();
-const PORT = 3000;
-
-// Middleware
-app.use(express.json());
-
-// Routes
+dotenv.config();
+connectDB();
+const authRoutes = require("./routes/authRoutes");
 
 app.use("/api/auth", authRoutes);
-
-app.get('/', (req, res) => {
-  res.send('Welcome to the Node.js API Server!');
+const app = express();
+const http = require("http").createServer(app);
+const io = require("socket.io")(http, {
+  cors: { origin: "*" }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.use(cors());
+app.use(express.json());
+
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/messages", require("./routes/messageRoutes"));
+
+// Socket.io setup
+io.on("connection", socket => {
+  console.log("User connected: " + socket.id);
+
+  socket.on("sendMessage", ({ senderId, receiverId, content }) => {
+    socket.to(receiverId).emit("receiveMessage", { senderId, content });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected: " + socket.id);
+  });
 });
-// Assuming you're using express
-// import express from "express"
-// const app = express();
-// const port = 3000;
 
-// // Middleware to parse JSON request bodies
-// app.use(express.json());
-
-// // Define the POST login route
-// app.post('/api/auth/login', (req, res) => {
-//   const { username, password } = req.body;
-
-//   // TODO: Add your actual auth logic here
-//   if (username === 'admin' && password === 'password') {
-//     res.json({ message: 'Login successful!' });
-//   } else {
-//     res.status(401).json({ message: 'Invalid credentials' });
-//   }
-// });
-
-// // Start the server
-// app.listen(port, () => {
-//   console.log(`Server is running on http://localhost:${port}`);
-// });
+const PORT = process.env.PORT || 5000;
+http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
