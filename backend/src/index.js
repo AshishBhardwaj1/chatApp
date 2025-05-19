@@ -3,10 +3,12 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
 const app = express();
+const PORT = 8000;
 
-dotenv.config();
-connectDB();
-const authRoutes = require("./routes/authRoutes");
+// Middleware
+app.use(express.json());
+
+// Routes
 
 app.use("/api/auth", authRoutes);
 const http = require("http").createServer(app);
