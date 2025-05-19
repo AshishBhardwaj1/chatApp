@@ -2,13 +2,13 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
+const app = express();
 
 dotenv.config();
 connectDB();
 const authRoutes = require("./routes/authRoutes");
 
 app.use("/api/auth", authRoutes);
-const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: { origin: "*" }
